@@ -18,6 +18,9 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SDKDLL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -26,5 +29,11 @@
     <ClCompile Include="CM_AudioVisualizer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SDKDLL.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="SDKDLL.lib" />
   </ItemGroup>
 </Project>
