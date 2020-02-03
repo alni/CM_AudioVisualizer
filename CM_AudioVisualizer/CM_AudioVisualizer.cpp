@@ -1,4 +1,4 @@
-// CM_ConsoleApplication.cpp : This file contains the 'main' function. Program execution begins and ends there.
+// CM_AudioVisualizer.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
 #include "pch.h"
@@ -57,8 +57,8 @@ DWORD WINAPI myMusicThread(LPVOID lpParameter)
 
 	pData = (PMYDATA)lpParameter;
 	//unsigned int& myCounter = *((unsigned int*)lpParameter);
-	unsigned int myCounter = ((unsigned int)pData->counter);
-	float threshold = ((float)pData->threshold);
+	unsigned int myCounter = pData->counter;
+	float threshold = pData->threshold;
 	float fVolValue = GetNowVolumePeekValue();
 	initCMDevice();
 	while (myCounter < 0xFFFFFFFF)
@@ -97,7 +97,7 @@ void setupMusicThreads(float threshold)
 	pData->counter = myCounter;
 	pData->threshold = threshold + 0.0f;
 
-	HANDLE myHandle = CreateThread(0, 0, myMusicThread, &pData, 0, &myThreadID);
+	HANDLE myHandle = CreateThread(0, 0, myMusicThread, pData, 0, &myThreadID);
 	char myChar = ' ';
 	while (myChar != 'q')
 	{
