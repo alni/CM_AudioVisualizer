@@ -34,6 +34,8 @@ private:
 	std::vector <std::string> tokens;
 };
 
+#define DEF_BRIGHTNESS 51
+
 void initCMDevice()
 {
 	SetControlDevice(DEV_MKeys_M_White);
@@ -60,6 +62,7 @@ DWORD WINAPI myMusicThread(LPVOID lpParameter)
 	unsigned int myCounter = pData->counter;
 	float threshold = pData->threshold;
 	float fVolValue = GetNowVolumePeekValue();
+	BYTE bThreshold = BYTE(threshold * 255);
 	initCMDevice();
 	while (myCounter < 0xFFFFFFFF)
 		//while(true)
@@ -67,7 +70,7 @@ DWORD WINAPI myMusicThread(LPVOID lpParameter)
 		//++myCounter;
 		float fPeekValue = GetNowVolumePeekValue();
 		//if (fVolValue - fPeekValue > 0.1f || fPeekValue - fVolValue > 0.1f)
-		if (fPeekValue > threshold) //0.30f)
+		if (fPeekValue >= threshold) //0.30f)
 		{
 			//fVolValue = fPeekValue + 0.0f;
 			BYTE bVol = BYTE(fPeekValue * 255);
@@ -76,7 +79,18 @@ DWORD WINAPI myMusicThread(LPVOID lpParameter)
 		}
 		else
 		{
-			SetFullLedColor(51, 51, 51);
+			// Check if Default (Idle) Brightness is less than the threshold
+			if (DEF_BRIGHTNESS < bThreshold)
+			{
+				// Use it only if it is less than the threhold
+				SetFullLedColor(DEF_BRIGHTNESS, DEF_BRIGHTNESS, DEF_BRIGHTNESS);
+			}
+			else
+			{
+				// Otherwise, use the half of the threshold (divided by 2) as the idle Brightness
+				SetFullLedColor(bThreshold / 2, bThreshold / 2, bThreshold / 2);
+			}
+			
 			//Sleep(450);
 		}
 		Sleep(100);
@@ -109,9 +123,6 @@ void setupMusicThreads(float threshold)
 	CloseHandle(myHandle);
 	deinitCMDevice();
 }
-
-#define DEF_BRIGHTNESS 170
-#define ALT_BRIGHTNESS 255
 
 int main(int argc, char *argv[], char *envp[])
 {
