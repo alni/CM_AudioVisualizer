@@ -51,6 +51,7 @@ void deinitCMDevice()
 typedef struct MyData {
 	unsigned int counter;
 	float threshold;
+	float multiplier;
 } MYDATA, *PMYDATA;
 
 DWORD WINAPI myMusicThread(LPVOID lpParameter)
@@ -61,6 +62,7 @@ DWORD WINAPI myMusicThread(LPVOID lpParameter)
 	//unsigned int& myCounter = *((unsigned int*)lpParameter);
 	unsigned int myCounter = pData->counter;
 	float threshold = pData->threshold;
+	float multiplier = pData->multiplier;
 	float fVolValue = GetNowVolumePeekValue();
 	BYTE bThreshold = BYTE(threshold * 255);
 	initCMDevice();
@@ -69,6 +71,11 @@ DWORD WINAPI myMusicThread(LPVOID lpParameter)
 	{
 		//++myCounter;
 		float fPeekValue = GetNowVolumePeekValue();
+		fPeekValue *= multiplier;
+		if (fPeekValue > 1.0f)
+		{
+			fPeekValue = 1.0f;
+		}
 		//if (fVolValue - fPeekValue > 0.1f || fPeekValue - fVolValue > 0.1f)
 		if (fPeekValue >= threshold) //0.30f)
 		{
@@ -99,7 +106,7 @@ DWORD WINAPI myMusicThread(LPVOID lpParameter)
 	return 0;
 }
 
-void setupMusicThreads(float threshold)
+void setupMusicThreads(float threshold, float multiplier = 1.0f)
 {
 	using namespace std;
 
@@ -110,6 +117,7 @@ void setupMusicThreads(float threshold)
 	pData = (PMYDATA)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(MYDATA));
 	pData->counter = myCounter;
 	pData->threshold = threshold + 0.0f;
+	pData->multiplier = multiplier + 0.0f;
 
 	HANDLE myHandle = CreateThread(0, 0, myMusicThread, pData, 0, &myThreadID);
 	char myChar = ' ';
@@ -130,13 +138,24 @@ int main(int argc, char *argv[], char *envp[])
 
 	InputParser input(argc, argv);
 
-	float fThreshold = 0.30f;
+	float fThreshold = 0.30f,
+		fMultiplier = 1.0f;
 
 	if (input.cmdOptionExists("threshold"))
 	{
 		fThreshold = std::strtof((input.getCmdOption("threshold")).c_str(), 0);
 	}
-	setupMusicThreads(fThreshold);
+	std::cout << (input.getCmdOption("multiplier")).c_str() << "\n";
+	if (input.cmdOptionExists("multiplier"))
+	{
+		fMultiplier = std::strtof((input.getCmdOption("multiplier")).c_str(), 0);
+	}
+	if (fMultiplier < 0.01f || fMultiplier > 10.0f)
+	{
+		// Value is out of range. Only allow values between 0.01 and 10.0
+		fMultiplier = 1.0f; // Reset value to default
+	}
+	setupMusicThreads(fThreshold, fMultiplier);
 	return 0;
 }
 
