@@ -4,7 +4,7 @@ Audio Visualizer for Cooler Master peripherals
 
 ## Usage 
 
-Using default settings: (threshold at 0.30)
+Using default settings: (threshold at 0.01/1% ~~0.30~~)
 
 ```
 CM_AudioVisualizer.exe
@@ -40,7 +40,8 @@ CM_AudioVisualizer.exe multiplier 0.20
 ### Parameters
 
 * `threshold <num>` - Setting the activation threshold to a specific number
-  * **Default** - `0.30`
+  * **Range** - `0.01 - 0.99`
+  * **Default** - `0.01` ~~`0.30`~~
 * `multiplier <num>` - Multiplier for the audio level (useful for example with low audio level sounds to amplify/increase their brightness)
   * **Range** - `0.01 - 10.0` (falls back to the default value if outside of this range)
   * **Default** - `1.0`

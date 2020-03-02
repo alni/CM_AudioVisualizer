@@ -36,6 +36,14 @@ private:
 
 #define DEF_BRIGHTNESS 51
 
+#define DEF_THRESHOLD 0.01f // 0.30f
+#define MIN_THRESHOLD 0.01f
+#define MAX_THRESHOLD 0.99f
+
+#define DEF_MULTIPLIER 1.0f
+#define MIN_MULTIPLIER 0.01f
+#define MAX_MULTIPLIER 10.0f
+
 void initCMDevice()
 {
 	SetControlDevice(DEV_MKeys_M_White);
@@ -138,22 +146,26 @@ int main(int argc, char *argv[], char *envp[])
 
 	InputParser input(argc, argv);
 
-	float fThreshold = 0.30f,
-		fMultiplier = 1.0f;
+	float fThreshold = DEF_THRESHOLD, //0.30f,
+		fMultiplier = DEF_MULTIPLIER; // 1.0f;
 
 	if (input.cmdOptionExists("threshold"))
 	{
 		fThreshold = std::strtof((input.getCmdOption("threshold")).c_str(), 0);
+	}
+	if (fThreshold < MIN_THRESHOLD || fThreshold > MAX_THRESHOLD)
+	{
+		fThreshold = DEF_THRESHOLD;
 	}
 	std::cout << (input.getCmdOption("multiplier")).c_str() << "\n";
 	if (input.cmdOptionExists("multiplier"))
 	{
 		fMultiplier = std::strtof((input.getCmdOption("multiplier")).c_str(), 0);
 	}
-	if (fMultiplier < 0.01f || fMultiplier > 10.0f)
+	if (fMultiplier < MIN_MULTIPLIER || fMultiplier > MAX_MULTIPLIER)
 	{
 		// Value is out of range. Only allow values between 0.01 and 10.0
-		fMultiplier = 1.0f; // Reset value to default
+		fMultiplier = DEF_MULTIPLIER; // Reset value to default
 	}
 	setupMusicThreads(fThreshold, fMultiplier);
 	return 0;
