@@ -64,7 +64,7 @@ static std::unordered_map<std::string, DEVICE_INDEX> const deviceTable = {
 		{"MM520", DEV_MM520},
 		{"MM530", DEV_MM530},
 		{"MM830", DEV_MM830},
-		{"MM830", DEV_MM830},
+		{"MMouse_L", DEV_MMouse_L},
 		{"MMouse_S", DEV_MMouse_S}
 };
 
@@ -142,7 +142,9 @@ DWORD WINAPI myMusicThread(LPVOID lpParameter)
 void setupMusicThreads(float threshold, float multiplier = 1.0f, DEVICE_INDEX device = DEV_DEFAULT)
 {
 	using namespace std;
+	
 	initCMDevice(device);
+
 	unsigned int myCounter = 0;
 	PMYDATA pData;
 	DWORD myThreadID;
@@ -167,7 +169,7 @@ void setupMusicThreads(float threshold, float multiplier = 1.0f, DEVICE_INDEX de
 
 int main(int argc, char *argv[], char *envp[])
 {
-	std::cout << "Hello World!\n";
+	std::cout << "Hello World!\n"; // TODO: Change to something more useful
 
 	InputParser input(argc, argv);
 
@@ -202,7 +204,8 @@ int main(int argc, char *argv[], char *envp[])
 		// Adapted from example code on StackOverflow:
 		// https://stackoverflow.com/a/7163130 
 		auto it = deviceTable.find(deviceCmd);
-		if (it != deviceTable.end()) {
+		if (it != deviceTable.end())
+		{
 			device = it->second;
 		}
 		else
