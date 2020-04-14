@@ -46,6 +46,7 @@ private:
 
 void initCMDevice()
 {
+	// TODO: Change to a non hardcoded value
 	SetControlDevice(DEV_MKeys_M_White);
 	EnableLedControl(true);
 	SetFullLedColor(51, 51, 51);
