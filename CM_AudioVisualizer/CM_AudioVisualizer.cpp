@@ -8,6 +8,7 @@
 #include <vector>
 #include <iostream>
 #include "SDKDLL.h"
+#include <unordered_map>
 
 class InputParser {
 public:
@@ -44,10 +45,33 @@ private:
 #define MIN_MULTIPLIER 0.01f
 #define MAX_MULTIPLIER 10.0f
 
-void initCMDevice()
+// String to enum lookup.
+// Adapted from example code on StackOverflow:
+// https://stackoverflow.com/a/7163130 
+static std::unordered_map<std::string, DEVICE_INDEX> const deviceTable = {
+		{"CK372", DEV_CK372},
+		{"CK530", DEV_CK530},
+		{"CK550_552", DEV_CK550_552},
+		{"CK551", DEV_CK551},
+		{"MK750", DEV_MK750},
+		{"MK850", DEV_MK850},
+		{"MKeys_L", DEV_MKeys_L},
+		{"MKeys_L_White", DEV_MKeys_L_White},
+		{"MKeys_M", DEV_MKeys_M},
+		{"MKeys_M_White", DEV_MKeys_M_White},
+		{"MKeys_S", DEV_MKeys_S},
+		{"MKeys_S_White", DEV_MKeys_S_White},
+		{"MM520", DEV_MM520},
+		{"MM530", DEV_MM530},
+		{"MM830", DEV_MM830},
+		{"MM830", DEV_MM830},
+		{"MMouse_S", DEV_MMouse_S}
+};
+
+void initCMDevice(DEVICE_INDEX device = DEV_DEFAULT)
 {
 	// TODO: Change to a non hardcoded value
-	SetControlDevice(DEV_MKeys_M_White);
+	SetControlDevice(device); // DEV_MKeys_M_White);
 	EnableLedControl(true);
 	SetFullLedColor(51, 51, 51);
 }
@@ -74,7 +98,7 @@ DWORD WINAPI myMusicThread(LPVOID lpParameter)
 	float multiplier = pData->multiplier;
 	float fVolValue = GetNowVolumePeekValue();
 	BYTE bThreshold = BYTE(threshold * 255);
-	initCMDevice();
+	//initCMDevice();
 	while (myCounter < 0xFFFFFFFF)
 		//while(true)
 	{
@@ -115,10 +139,10 @@ DWORD WINAPI myMusicThread(LPVOID lpParameter)
 	return 0;
 }
 
-void setupMusicThreads(float threshold, float multiplier = 1.0f)
+void setupMusicThreads(float threshold, float multiplier = 1.0f, DEVICE_INDEX device = DEV_DEFAULT)
 {
 	using namespace std;
-
+	initCMDevice(device);
 	unsigned int myCounter = 0;
 	PMYDATA pData;
 	DWORD myThreadID;
@@ -168,7 +192,25 @@ int main(int argc, char *argv[], char *envp[])
 		// Value is out of range. Only allow values between 0.01 and 10.0
 		fMultiplier = DEF_MULTIPLIER; // Reset value to default
 	}
-	setupMusicThreads(fThreshold, fMultiplier);
+	
+	DEVICE_INDEX device = DEV_DEFAULT;
+	if (input.cmdOptionExists("device"))
+	{
+		std::string deviceCmd = input.getCmdOption("device");
+
+		// String to enum lookup.
+		// Adapted from example code on StackOverflow:
+		// https://stackoverflow.com/a/7163130 
+		auto it = deviceTable.find(deviceCmd);
+		if (it != deviceTable.end()) {
+			device = it->second;
+		}
+		else
+		{
+			device = DEV_DEFAULT;
+		}
+	}
+	setupMusicThreads(fThreshold, fMultiplier, device);
 	return 0;
 }
 
